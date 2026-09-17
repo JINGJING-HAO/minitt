@@ -252,7 +252,7 @@
                     <i class="fa-solid fa-dragon text-2xl text-amber-500"></i>
                     <div>
                         <span class="text-xs text-amber-400/80 uppercase tracking-widest block">第五格．計算答案</span>
-                        <span class="text-lg font-bold text-amber-100">最終數值 (五捨六入)</span>
+                        <span class="text-lg font-bold text-amber-100">最終數值 (七捨八入)</span>
                     </div>
                 </div>
 
@@ -266,7 +266,7 @@
             </div>
             
             <div class="mt-2 text-[11px] text-amber-200/50 text-right">
-                註：捨入規則為「五捨六入」（如 10.5 捨為 10，10.6 進位為 11）
+                註：捨入規則為「七捨八入」（如 10.7 捨為 10，10.8 進位為 11）
             </div>
         </div>
 
@@ -325,14 +325,14 @@
     <!-- Core JavaScript Logic -->
     <script>
         /**
-         * 五捨六入 (Round 5-Down 6-Up) 精準函數
+         * 七捨八入 (Round 7-Down 8-Up) 精準函數
          * 規則：
-         * 小數點第一位小於等於 5 時向下捨去
-         * 小數點第一位大於等於 6 時向上進位
+         * 小數點第一位小於等於 7 時向下捨去
+         * 小數點第一位大於等於 8 時向上進位
          * @param {number} val - 要計算的浮點數
          * @returns {number} 捨入後的整數
          */
-        function roundFiveDownSixUp(val) {
+        function roundSevenDownEightUp(val) {
             if (isNaN(val)) return 0;
             
             // 處理負數邏輯
@@ -345,10 +345,10 @@
             const firstDecimal = Math.floor((absVal - integerPart) * 10 + 0.0000001);
 
             let rounded;
-            if (firstDecimal >= 6) {
-                rounded = integerPart + 1; // 大於等於 6 進位
+            if (firstDecimal >= 8) {
+                rounded = integerPart + 1; // 大於等於 8 進位
             } else {
-                rounded = integerPart;     // 小於等於 5 捨去
+                rounded = integerPart;     // 小於等於 7 捨去
             }
 
             return isNegative ? -rounded : rounded;
@@ -369,8 +369,8 @@
             const percentMultiplier = (100 + apocalypse) * 0.01;
             const rawResult = baseSum * percentMultiplier;
 
-            // 使用「五捨六入」處理結果
-            const finalResult = roundFiveDownSixUp(rawResult);
+            // 使用「七捨八入」處理結果
+            const finalResult = roundSevenDownEightUp(rawResult);
 
             // 更新介面呈現
             document.getElementById('exact-result').innerText = Number(rawResult.toFixed(4));
