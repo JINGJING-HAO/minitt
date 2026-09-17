@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天堂風格數值計算機</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lineage: {
+                            bg: '#0c0a09',
+                            panel: '#1a1614',
+                            border: '#785b32',
+                            borderLight: '#c8a45c',
+                            gold: '#dfb76c',
+                            goldHover: '#f3d690',
+                            red: '#8b0000',
+                            redBright: '#d32f2f',
+                            text: '#d6c5b0'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Noto+Serif+TC:wght@500;700;900&display=swap');
+
+        body {
+            font-family: 'Noto Serif TC', 'Cinzel', serif;
+            background-color: #080706;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(139, 0, 0, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 50% 80%, rgba(200, 164, 92, 0.08) 0%, transparent 50%),
+                linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(8,7,6,0.95));
+            background-attachment: fixed;
+            color: #d6c5b0;
+            user-select: none;
+        }
+
+        /* 經典天堂復古邊框與外觀 */
+        .lineage-box {
+            background: linear-gradient(145deg, #181412, #100d0b);
+            border: 2px solid #5a4527;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 0, 0, 0.9),
+                0 0 15px rgba(0, 0, 0, 0.8),
+                0 0 2px #9a7844;
+            position: relative;
+        }
+
+        .lineage-box::before {
+            content: '';
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            border: 1px solid rgba(200, 164, 92, 0.2);
+            pointer-events: none;
+        }
+
+        /* 經典金屬按鈕質感 */
+        .lineage-btn {
+            background: linear-gradient(to bottom, #7a1b1b, #4a0d0d);
+            border: 1px solid #c8a45c;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.3),
+                0 4px 6px rgba(0,0,0,0.6),
+                0 0 8px rgba(139, 0, 0, 0.4);
+            color: #f3d690;
+            text-shadow: 1px 1px 2px #000;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .lineage-btn:hover {
+            background: linear-gradient(to bottom, #9e2424, #611111);
+            border-color: #f3d690;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.5),
+                0 0 15px rgba(211, 47, 47, 0.6);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .lineage-btn:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .lineage-btn-secondary {
+            background: linear-gradient(to bottom, #3a322b, #221c17);
+            border: 1px solid #785b32;
+            color: #b3a088;
+        }
+
+        .lineage-btn-secondary:hover {
+            background: linear-gradient(to bottom, #4d4339, #2f2720);
+            border-color: #c8a45c;
+            color: #dfb76c;
+            box-shadow: 0 0 10px rgba(200, 164, 92, 0.3);
+        }
+
+        /* 數值輸入框樣式 */
+        .lineage-input {
+            background: #090807;
+            border: 1px solid #4a3820;
+            color: #f5e5c9;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .lineage-input:focus {
+            outline: none;
+            border-color: #c8a45c;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 8px rgba(200, 164, 92, 0.4);
+        }
+
+        /* 標題金色閃爍特效 */
+        .gold-glow {
+            color: #f3d690;
+            text-shadow: 
+                0 0 5px rgba(243, 214, 144, 0.5),
+                0 0 10px rgba(200, 164, 92, 0.3),
+                2px 2px 3px rgba(0, 0, 0, 0.9);
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0b0a;
+            border-left: 1px solid #2a2117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a3820;
+            border: 1px solid #785b32;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6e5330;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-3 sm:p-6">
+
+    <!-- Header Title -->
+    <header class="w-full max-w-2xl text-center my-3 sm:my-5">
+        <div class="inline-block relative px-6 py-2">
+            <h1 class="text-2xl sm:text-4xl font-black tracking-wider gold-glow flex items-center justify-center gap-3">
+                <i class="fa-solid fa-shield-halved text-amber-600 text-xl sm:text-3xl"></i>
+                天堂裝備數值計算機
+                <i class="fa-solid fa-shield-halved text-amber-600 text-xl sm:text-3xl"></i>
+            </h1>
+            <p class="text-xs sm:text-sm text-amber-200/60 mt-1 font-serif tracking-widest">
+                [ ( 重鑄 + 遠古 + 附魔石 ) × ( 100 + 天啟% ) × 0.01 ]
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Interactive Container -->
+    <main class="w-full max-w-2xl lineage-box rounded-lg p-4 sm:p-7 space-y-6">
+        
+        <!-- Input Grid (前四格) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            
+            <!-- 格子 1: 重鑄 -->
+            <div class="flex flex-col space-y-1.5 bg-black/40 p-2.5 rounded border border-amber-900/40">
+                <label for="reforge" class="text-xs sm:text-sm font-bold text-amber-400 flex items-center justify-between">
+                    <span><i class="fa-solid fa-hammer mr-1 text-amber-600"></i>第一格</span>
+                    <span class="text-amber-200">重鑄</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="reforge" 
+                    value="0" 
+                    step="any"
+                    onfocus="this.select()"
+                    class="lineage-input text-center text-lg sm:text-xl font-bold py-2 px-1 rounded w-full"
+                >
+            </div>
+
+            <!-- 格子 2: 遠古 -->
+            <div class="flex flex-col space-y-1.5 bg-black/40 p-2.5 rounded border border-amber-900/40">
+                <label for="ancient" class="text-xs sm:text-sm font-bold text-amber-400 flex items-center justify-between">
+                    <span><i class="fa-solid fa-gem mr-1 text-amber-600"></i>第二格</span>
+                    <span class="text-amber-200">遠古</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="ancient" 
+                    value="0" 
+                    step="any"
+                    onfocus="this.select()"
+                    class="lineage-input text-center text-lg sm:text-xl font-bold py-2 px-1 rounded w-full"
+                >
+            </div>
+
+            <!-- 格子 3: 附魔石 -->
+            <div class="flex flex-col space-y-1.5 bg-black/40 p-2.5 rounded border border-amber-900/40">
+                <label for="enchant" class="text-xs sm:text-sm font-bold text-amber-400 flex items-center justify-between">
+                    <span><i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-600"></i>第三格</span>
+                    <span class="text-amber-200">附魔石</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="enchant" 
+                    value="0" 
+                    step="any"
+                    onfocus="this.select()"
+                    class="lineage-input text-center text-lg sm:text-xl font-bold py-2 px-1 rounded w-full"
+                >
+            </div>
+
+            <!-- 格子 4: 天啟總%數 -->
+            <div class="flex flex-col space-y-1.5 bg-black/40 p-2.5 rounded border border-amber-900/40">
+                <label for="apocalypse" class="text-xs sm:text-sm font-bold text-amber-400 flex items-center justify-between">
+                    <span><i class="fa-solid fa-scroll mr-1 text-amber-600"></i>第四格</span>
+                    <span class="text-amber-200">天啟%數</span>
+                </label>
+                <div class="relative flex items-center">
+                    <input 
+                        type="number" 
+                        id="apocalypse" 
+                        value="0" 
+                        step="any"
+                        onfocus="this.select()"
+                        class="lineage-input text-center text-lg sm:text-xl font-bold py-2 pl-1 pr-6 rounded w-full"
+                    >
+                    <span class="absolute right-2 text-amber-500 font-bold text-xs">%</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 第五格：最終答案數值區塊 -->
+        <div class="relative bg-gradient-to-r from-stone-950 via-zinc-900 to-stone-950 p-4 sm:p-5 rounded-lg border-2 border-amber-600/60 shadow-2xl">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-dragon text-2xl text-amber-500"></i>
+                    <div>
+                        <span class="text-xs text-amber-400/80 uppercase tracking-widest block">第五格．計算答案</span>
+                        <span class="text-lg font-bold text-amber-100">最終數值 (五捨六入)</span>
+                    </div>
+                </div>
+
+                <!-- 答案顯示位置 -->
+                <div class="flex items-baseline gap-2">
+                    <span class="text-xs text-stone-400">精確數值: <span id="exact-result" class="text-stone-300">0</span></span>
+                    <div id="final-result" class="text-3xl sm:text-5xl font-black text-amber-400 gold-glow tracking-wider px-3 py-1 bg-black/60 rounded border border-amber-500/40 min-w-[120px] text-right">
+                        0
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-2 text-[11px] text-amber-200/50 text-right">
+                註：捨入規則為「五捨六入」（如 10.5 捨為 10，10.6 進位為 11）
+            </div>
+        </div>
+
+        <!-- 控制按鈕區 -->
+        <div class="flex gap-3 pt-1">
+            <button 
+                onclick="calculateAndRecord()" 
+                class="lineage-btn flex-1 py-3 px-4 rounded font-bold text-lg flex items-center justify-center gap-2 cursor-pointer"
+            >
+                <i class="fa-solid fa-calculator"></i>
+                計算並紀錄數值
+            </button>
+            
+            <button 
+                onclick="resetInputs()" 
+                class="lineage-btn-secondary py-3 px-4 rounded font-bold text-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                title="重置輸入欄位"
+            >
+                <i class="fa-solid fa-rotate-left"></i>
+                重置
+            </button>
+        </div>
+
+        <!-- 計算紀錄區塊 -->
+        <div class="border-t border-amber-900/50 pt-5 space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base sm:text-lg font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-scroll text-amber-600"></i>
+                    歷史計算紀錄
+                </h3>
+                <button 
+                    onclick="clearHistory()" 
+                    class="text-xs text-red-400 hover:text-red-300 underline flex items-center gap-1 cursor-pointer"
+                >
+                    <i class="fa-solid fa-trash-can"></i>
+                    清除所有紀錄
+                </button>
+            </div>
+
+            <!-- 歷史紀錄列表容器 -->
+            <div class="max-h-56 overflow-y-auto pr-1 space-y-2" id="history-container">
+                <!-- 動態注入紀錄項目，預設為空提示 -->
+                <div id="empty-history" class="text-center py-6 text-stone-500 text-sm bg-black/20 rounded border border-stone-800">
+                    目前尚無計算紀錄，請填入數值後點擊「計算並紀錄數值」
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Footer Information -->
+    <footer class="w-full max-w-2xl text-center my-6 text-xs text-stone-500 space-y-1">
+        <p>天堂風格數值計算機 &copy; 2026 | 支援 RWD 手機 / 電腦雙平台使用</p>
+    </footer>
+
+    <!-- Core JavaScript Logic -->
+    <script>
+        /**
+         * 五捨六入 (Round 5-Down 6-Up) 精準函數
+         * 規則：
+         * 小數點第一位小於等於 5 時向下捨去
+         * 小數點第一位大於等於 6 時向上進位
+         * @param {number} val - 要計算的浮點數
+         * @returns {number} 捨入後的整數
+         */
+        function roundFiveDownSixUp(val) {
+            if (isNaN(val)) return 0;
+            
+            // 處理負數邏輯
+            const isNegative = val < 0;
+            const absVal = Math.abs(val);
+            
+            // 取得整數部分與小數部分
+            const integerPart = Math.floor(absVal);
+            // 避免浮點數精確度問題，乘以 10 放大取餘數
+            const firstDecimal = Math.floor((absVal - integerPart) * 10 + 0.0000001);
+
+            let rounded;
+            if (firstDecimal >= 6) {
+                rounded = integerPart + 1; // 大於等於 6 進位
+            } else {
+                rounded = integerPart;     // 小於等於 5 捨去
+            }
+
+            return isNegative ? -rounded : rounded;
+        }
+
+        /**
+         * 讀取輸入值並進行計算
+         */
+        function calculate() {
+            // 取得前四格數值
+            const reforge = parseFloat(document.getElementById('reforge').value) || 0;
+            const ancient = parseFloat(document.getElementById('ancient').value) || 0;
+            const enchant = parseFloat(document.getElementById('enchant').value) || 0;
+            const apocalypse = parseFloat(document.getElementById('apocalypse').value) || 0;
+
+            // 計算公式: (重鑄 + 遠古 + 附魔石) * (100 + 天啟總%數) * 0.01
+            const baseSum = reforge + ancient + enchant;
+            const percentMultiplier = (100 + apocalypse) * 0.01;
+            const rawResult = baseSum * percentMultiplier;
+
+            // 使用「五捨六入」處理結果
+            const finalResult = roundFiveDownSixUp(rawResult);
+
+            // 更新介面呈現
+            document.getElementById('exact-result').innerText = Number(rawResult.toFixed(4));
+            document.getElementById('final-result').innerText = finalResult;
+
+            return {
+                reforge,
+                ancient,
+                enchant,
+                apocalypse,
+                rawResult: rawResult.toFixed(2),
+                finalResult
+            };
+        }
+
+        /**
+         * 觸發計算並寫入紀錄
+         */
+        function calculateAndRecord() {
+            const data = calculate();
+            addRecordToHistory(data);
+            saveHistoryToLocalStorage();
+        }
+
+        /**
+         * 新增一筆紀錄到 HTML
+         */
+        function addRecordToHistory(data) {
+            const container = document.getElementById('history-container');
+            const emptyMsg = document.getElementById('empty-history');
+            
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+            const recordEl = document.createElement('div');
+            recordEl.className = 'history-item bg-black/60 border border-amber-900/40 hover:border-amber-600/50 p-2.5 rounded text-xs sm:text-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 transition-all';
+            
+            recordEl.innerHTML = `
+                <div class="flex items-center gap-2 text-amber-200/80">
+                    <span class="text-amber-600 font-mono text-[11px]">[${timeStr}]</span>
+                    <span>(重 ${data.reforge} + 遠 ${data.ancient} + 附 ${data.enchant}) × (100 + ${data.apocalypse}%) × 0.01</span>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                    <span class="text-stone-400 text-[11px]">(原: ${data.rawResult})</span>
+                    <span class="text-amber-400 font-bold text-base gold-glow">
+                        = ${data.finalResult}
+                    </span>
+                </div>
+            `;
+
+            // 最新紀錄插在最上面
+            container.insertBefore(recordEl, container.firstChild);
+        }
+
+        /**
+         * 重置輸入欄位
+         */
+        function resetInputs() {
+            document.getElementById('reforge').value = 0;
+            document.getElementById('ancient').value = 0;
+            document.getElementById('enchant').value = 0;
+            document.getElementById('apocalypse').value = 0;
+            calculate();
+        }
+
+        /**
+         * 本地儲存：歷史紀錄儲存到 LocalStorage
+         */
+        function saveHistoryToLocalStorage() {
+            const container = document.getElementById('history-container');
+            const items = container.querySelectorAll('.history-item');
+            const historyData = [];
+
+            items.forEach(item => {
+                historyData.push(item.outerHTML);
+            });
+
+            localStorage.setItem('lineage_calc_history', JSON.stringify(historyData.slice(0, 30))); // 最多存30條
+        }
+
+        /**
+         * 本地儲存：載入歷史紀錄
+         */
+        function loadHistoryFromLocalStorage() {
+            const saved = localStorage.getItem('lineage_calc_history');
+            if (saved) {
+                const historyData = JSON.parse(saved);
+                if (historyData.length > 0) {
+                    const container = document.getElementById('history-container');
+                    const emptyMsg = document.getElementById('empty-history');
+                    if (emptyMsg) emptyMsg.remove();
+
+                    historyData.forEach(htmlStr => {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = htmlStr;
+                        container.appendChild(tempDiv.firstChild);
+                    });
+                }
+            }
+        }
+
+        /**
+         * 清除所有歷史紀錄
+         */
+        function clearHistory() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = `
+                <div id="empty-history" class="text-center py-6 text-stone-500 text-sm bg-black/20 rounded border border-stone-800">
+                    目前尚無計算紀錄，請填入數值後點擊「計算並紀錄數值」
+                </div>
+            `;
+            localStorage.removeItem('lineage_calc_history');
+        }
+
+        // 即時聯動計算 (輸入時即時更新結果，但不寫入歷史紀錄)
+        ['reforge', 'ancient', 'enchant', 'apocalypse'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        // 頁面載入初始化
+        window.onload = function() {
+            calculate();
+            loadHistoryFromLocalStorage();
+        };
+    </script>
+</body>
+</html>
